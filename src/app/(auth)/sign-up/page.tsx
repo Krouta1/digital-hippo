@@ -1,16 +1,33 @@
 "use client";
 import { Icons } from "@/components/Icons";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants,Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import {useForm} from "react-hook-form"
+import { zodResolver } from "@hookfrom/resolvers/zod"
+import {TAuthCredentialsValidator,AuthCredentialsValidator} from "@/lib/validators/account-credentials-validator"
+import {trpc} from "@/trpc/client"
 
-type Props = {};
 
-const SignUpPage = (props: Props) => {
+
+const SignUpPage = () => {
+
+  const { register, handleSubmit, formState:{errors} } = useForm<TAuthCredentialsValidator>({
+    resolver: zodResolver(AuthCredentialsValidator)
+  })
+
+  const {mutate, isLoading} = trpc.auth.createPayloadUser.useMutation({})
+
+  const onSubmit =  ({email,password}:TAuthCredentialsValidator) => {
+    //send data to server
+    mutate({email, password})
+
+  }
+
   return (
     <>
       <div className="container relative flex pt-20 flex-col items-center justify-center lg:px-0">
@@ -30,20 +47,21 @@ const SignUpPage = (props: Props) => {
             </Link>
           </div>
           <div className="grid gap-6">
-            <form onSubmit={() => {}}>
+            <form onSubmit={() => {}} onSubmit={handleSubmit(onSubmit)}>
               <div className="grid gap-2">
                 <div className="grid gap-1 py-2">
                     <Label htmlFor="email">Email</Label>
                     <Input type="email" className={cn({
-                        "focus-visible:ring-red-500":true
-                    })} placeholder="you@example.com"/>
+                        "focus-visible:ring-red-500": errors.email
+                    })} placeholder="you@example.com" {...register("email")}/>
                 </div>
                 <div className="grid gap-1 py-2">
                     <Label htmlFor="password">Password</Label>
                     <Input type="password" className={cn({
-                        "focus-visible:ring-red-500":true
-                    })} placeholder="Password"/>
+                        "focus-visible:ring-red-500": errors.password
+                    })} placeholder="Password" {...register("password")}/>
                 </div>
+                <Button>Sign up</Button>
               </div>
             </form>
           </div>
