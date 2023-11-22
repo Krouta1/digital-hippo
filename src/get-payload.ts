@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
-import payload from "payload";
+import payload, { Payload } from "payload";
 import type { InitOptions } from "payload/config";
 import nodemailer from "nodemailer"
 
@@ -35,7 +35,7 @@ interface Args {
   initOptions?: Partial<InitOptions>;
 }
 
-export const getPayloadClient = async ({ initOptions }: Args):Promise<Payload> => {
+export const getPayloadClient = async ({ initOptions }: Args={}):Promise<Payload> => {
     if(!process.env.PAYLOAD_SECRET!){
         throw new Error("PAYLOAD_SECRET is missing!")
     }

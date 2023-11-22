@@ -8,7 +8,8 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import {useForm} from "react-hook-form"
-import { zodResolver } from "@hookfrom/resolvers/zod"
+import {zodResolver} from "@hookform/resolvers/zod"
+
 import {TAuthCredentialsValidator,AuthCredentialsValidator} from "@/lib/validators/account-credentials-validator"
 import {trpc} from "@/trpc/client"
 
@@ -22,7 +23,7 @@ const SignUpPage = () => {
 
   const {mutate, isLoading} = trpc.auth.createPayloadUser.useMutation({})
 
-  const onSubmit =  ({email,password}:TAuthCredentialsValidator) => {
+  const onSubmitForm =  ({email,password}:TAuthCredentialsValidator) => {
     //send data to server
     mutate({email, password})
 
@@ -47,7 +48,7 @@ const SignUpPage = () => {
             </Link>
           </div>
           <div className="grid gap-6">
-            <form onSubmit={() => {}} onSubmit={handleSubmit(onSubmit)}>
+            <form  onSubmit={handleSubmit(onSubmitForm)}>
               <div className="grid gap-2">
                 <div className="grid gap-1 py-2">
                     <Label htmlFor="email">Email</Label>
