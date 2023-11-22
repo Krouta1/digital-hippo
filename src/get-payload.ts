@@ -17,6 +17,9 @@ const transporter = nodemailer.createTransport({
   auth:{
     user:"resend",
     pass: process.env.RESEND_API_KEY
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 })
 
