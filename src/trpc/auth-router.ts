@@ -42,7 +42,7 @@ export const authRouter = router({
       const {token} = input
       const payload = await getPayloadClient();
 
-      isVerified = await.payload.verifyEmail({
+      const isVerified = await payload.verifyEmail({
         collection: "users",
         token,
       })

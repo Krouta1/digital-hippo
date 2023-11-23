@@ -14,7 +14,7 @@ interface Props {}
 const Navbar = async (props: Props) => {
   
   const nextCookies = cookies()
-  const {user} = await getServerSideUser()
+  const {user} = await getServerSideUser(nextCookies)
 
 
   return (
