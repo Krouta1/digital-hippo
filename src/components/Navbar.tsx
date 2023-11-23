@@ -1,17 +1,22 @@
 import React from "react";
-
+import {getServerSideUser} from "@/lib/payload-utils"
 import Link from "next/link";
 import { Icons } from "./Icons";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import NavItems from "./NavItems";
 import { Button } from "./ui/button";
 import Cart from "./Cart";
+import {cookies} from "next/headers"
 
-const user = null;
 
 interface Props {}
 
-const Navbar = (props: Props) => {
+const Navbar = async (props: Props) => {
+  
+  const nextCookies = cookies()
+  const {user} = await getServerSideUser()
+
+
   return (
     <div className="bg-white sticky z-50 top-0 inset-x-0 h-16">
       <header className="relative bg-white">
