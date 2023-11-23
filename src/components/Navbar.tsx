@@ -7,6 +7,7 @@ import NavItems from "./NavItems";
 import { Button } from "./ui/button";
 import Cart from "./Cart";
 import {cookies} from "next/headers"
+import UserAccountNav from "./UserAccountNav";
 
 
 interface Props {}
@@ -43,7 +44,7 @@ const Navbar = async (props: Props) => {
                     <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
                   )}
                   {user ? (
-                    <p></p>
+                    <UserAccountNav user={user}/>
                   ) : (
                     <Button asChild variant={"ghost"}>
                       <Link href={"/sign-up"}>Create account</Link>
