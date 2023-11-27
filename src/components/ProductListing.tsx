@@ -44,7 +44,16 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
   }
 
   //label of product category
-  const label = PRODUCT_CATEGORIES.find(({value})=>value===product.category)?.label
+  const label = PRODUCT_CATEGORIES.find(
+    ({ value }) => value === product.category
+  )?.label;
+
+  // urls for images
+  const validUrls = product.images
+    .map(({ image }) => (typeof image === "string" ? image : image.url))
+    .filter(Boolean) as string[];
+  // as string for typescript happiness ;)
+  console.log(validUrls)
 
   if (isVisible && product) {
     return (
@@ -55,10 +64,14 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
         })}
       >
         <div className="flex flex-col w-full ml-4 lg:ml-0">
-            <ImageSlider/>
-            <h3 className="mt-4 font-medium text-sm text-gray-700">{product.name}</h3>
-            <p className="mt-1 text-sm text-gray-500">{label}</p>
-            <p className="mt-1 font-medium text-sm text-gray-900">{formatPrice(product.price)}</p>
+          <ImageSlider urls={validUrls} />
+          <h3 className="mt-4 font-medium text-sm text-gray-700">
+            {product.name}
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">{label}</p>
+          <p className="mt-1 font-medium text-sm text-gray-900">
+            {formatPrice(product.price)}
+          </p>
         </div>
       </Link>
     );
