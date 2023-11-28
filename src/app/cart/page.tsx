@@ -198,6 +198,9 @@ const CartPage = (props: CartPageProps) => {
                 size={"lg"}
                 onClick={() => createCheckoutSession({ productIds })}
               >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                ) : null}
                 Checkout
               </Button>
             </div>
