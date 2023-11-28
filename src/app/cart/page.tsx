@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { PRODUCT_CATEGORIES } from "@/config";
 import { useCart } from "@/hooks/use-cart";
 import { cn, formatPrice } from "@/lib/utils";
+import { trpc } from "@/trpc/client";
 import { Check, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 type CartPageProps = {};
@@ -13,6 +15,15 @@ type CartPageProps = {};
 const CartPage = (props: CartPageProps) => {
   const { items, removeItem } = useCart();
   const fee = 1;
+  const router = useRouter();
+
+  //calling stripe for checkout
+  const { mutate: createCheckoutSession, isLoading } =
+    trpc.payment.createSession.useMutation({
+      onSuccess: ({ url }) => {
+        if (url) router.push(url);
+      },
+    });
 
   //this is for hydratation error
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -24,6 +35,9 @@ const CartPage = (props: CartPageProps) => {
     (total, { product }) => total + product.price,
     0
   );
+
+  // return productIds for stripe
+  const productIds = items.map(({ product }) => product.id);
 
   return (
     <div className="bg-white">
@@ -178,7 +192,14 @@ const CartPage = (props: CartPageProps) => {
               </div>
             </div>
             <div className="mt-6">
-                <Button className="w-full" size={"lg"} onClick={()=>{}}>Checkout</Button>
+              <Button
+                disabled={items.length === 0 || isLoading}
+                className="w-full"
+                size={"lg"}
+                onClick={() => createCheckoutSession({ productIds })}
+              >
+                Checkout
+              </Button>
             </div>
           </section>
         </div>

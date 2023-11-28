@@ -3,9 +3,11 @@ import { authRouter } from './auth-router'
 import { z } from "zod"
 import { QueryValidator } from "../lib/validators/query-validator"
 import { getPayloadClient } from "../get-payload"
+import { paymentRouter } from "./payment-router"
 
 export const appRouter = router({
     auth: authRouter,
+    payment: paymentRouter,
     getInifiniteProducts: publicProcedure.input(z.object({
         limit:z.number().min(1).max(100),
         cursor:z.number().nullish(), // last elemnt that was rendered
