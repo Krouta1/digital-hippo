@@ -125,7 +125,7 @@ exports.paymentRouter = (0, trpc_1.router)({
             });
         });
     }),
-    pollOrderStatus: trpc_1.publicProcedure
+    pollOrderStatus: trpc_1.privateProcedure
         .input(zod_1.z.object({ orderId: zod_1.z.string() }))
         .query(function (_a) {
         var input = _a.input;
@@ -139,17 +139,17 @@ exports.paymentRouter = (0, trpc_1.router)({
                     case 1:
                         payload = _b.sent();
                         return [4 /*yield*/, payload.find({
-                                collection: "orders",
+                                collection: 'orders',
                                 where: {
                                     id: {
-                                        in: orderId,
+                                        equals: orderId,
                                     },
                                 },
                             })];
                     case 2:
                         orders = (_b.sent()).docs;
                         if (!orders.length) {
-                            throw new server_1.TRPCError({ code: "NOT_FOUND" });
+                            throw new server_1.TRPCError({ code: 'NOT_FOUND' });
                         }
                         order = orders[0];
                         return [2 /*return*/, { isPaid: order._isPaid }];
