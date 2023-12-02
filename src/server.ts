@@ -5,9 +5,10 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouter } from "./trpc";
 import { inferAsyncReturnType } from "@trpc/server";
 import bodyParser from "body-parser";
-import { type } from "os";
+import nextBuild from "next/dist/build"
 import { IncomingMessage } from "http";
 import { stripeWebhookHandler } from "./webhooks";
+import path from "path";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -36,6 +37,17 @@ const start = async () => {
   })
   //also for stripe
   app.post("/api/webhooks/stripe",webHookMiddleware,stripeWebhookHandler)
+
+  //for build
+  if(process.env.NEXT_BUILD){
+    app.listen(PORT,async()=>{
+      payload.logger.info("Nxt.js is building for production")
+      //@ts-expect-error
+      await nextBuild(path.join(__dirname,'../'))
+
+      process.exit()
+    })
+  }
 
 
   const payload = await getPayloadClient({
