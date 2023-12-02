@@ -102,5 +102,9 @@ export const paymentRouter = router({
       if(!orders.length){
         throw new TRPCError({code:"NOT_FOUND"})
       }
+
+      const [order] = orders
+
+      return{isPaid: order._isPaid}
     }),
 });
