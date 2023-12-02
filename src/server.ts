@@ -5,7 +5,7 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouter } from "./trpc";
 import { inferAsyncReturnType } from "@trpc/server";
 import bodyParser from "body-parser";
-import nextBuild from "next/dist/build"
+import nextBuild from "next/dist/build";
 import { IncomingMessage } from "http";
 import { stripeWebhookHandler } from "./webhooks";
 import path from "path";
@@ -23,32 +23,17 @@ const createContext = ({
 
 //this to get types of context, very usefull whe you want to get something like token from context :)
 export type ExpressContext = inferAsyncReturnType<typeof createContext>;
-export type WebhookRequest = IncomingMessage & {rawBody: Buffer}
+export type WebhookRequest = IncomingMessage & { rawBody: Buffer };
 
 const start = async () => {
-
- 
-
-  //stripe webhook 
+  //stripe webhook
   const webHookMiddleware = bodyParser.json({
-    verify: (req: WebhookRequest,_,buffer)=>{
-      req.rawBody = buffer
-    }
-  })
+    verify: (req: WebhookRequest, _, buffer) => {
+      req.rawBody = buffer;
+    },
+  });
   //also for stripe
-  app.post("/api/webhooks/stripe",webHookMiddleware,stripeWebhookHandler)
-
-  //for build
-  if(process.env.NEXT_BUILD){
-    app.listen(PORT,async()=>{
-      payload.logger.info("Nxt.js is building for production")
-      //@ts-expect-error
-      await nextBuild(path.join(__dirname,'../'))
-
-      process.exit()
-    })
-  }
-
+  app.post("/api/webhooks/stripe", webHookMiddleware, stripeWebhookHandler);
 
   const payload = await getPayloadClient({
     initOptions: {
@@ -58,6 +43,17 @@ const start = async () => {
       },
     },
   });
+
+  //for build
+  if (process.env.NEXT_BUILD) {
+    app.listen(PORT, async () => {
+      payload.logger.info("Nxt.js is building for production");
+      //@ts-expect-error
+      await nextBuild(path.join(__dirname, "../"));
+
+      process.exit();
+    });
+  }
 
   app.use(
     "/api/trpc",
