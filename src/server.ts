@@ -46,7 +46,7 @@ const start = async () => {
     },
   });
 
-  //fro cart
+  //for cart
   const cartRouter = express.Router()
   cartRouter.use(payload.authenticate)
   cartRouter.get("/",(req,res)=>{

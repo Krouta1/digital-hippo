@@ -85,26 +85,29 @@ export const paymentRouter = router({
         return { url: null };
       }
     }),
-  pollOrderStatus: publicProcedure
+    pollOrderStatus: privateProcedure
     .input(z.object({ orderId: z.string() }))
-    .query(async ({input}) => {
-      const { orderId } = input;
-      const payload = await getPayloadClient();
+    .query(async ({ input }) => {
+      const { orderId } = input
+
+      const payload = await getPayloadClient()
+
       const { docs: orders } = await payload.find({
-        collection: "orders",
+        collection: 'orders',
         where: {
           id: {
-            in: orderId,
+            equals: orderId,
           },
         },
-      });
+      })
 
-      if(!orders.length){
-        throw new TRPCError({code:"NOT_FOUND"})
+      if (!orders.length) {
+        throw new TRPCError({ code: 'NOT_FOUND' })
       }
 
       const [order] = orders
 
-      return{isPaid: order._isPaid}
+      return { isPaid: order._isPaid }
     }),
+
 });
