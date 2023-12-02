@@ -9,6 +9,8 @@ import nextBuild from "next/dist/build";
 import { IncomingMessage } from "http";
 import { stripeWebhookHandler } from "./webhooks";
 import path from "path";
+import { PayloadRequest } from "payload/types";
+import { parse } from "url";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -43,6 +45,20 @@ const start = async () => {
       },
     },
   });
+
+  //fro cart
+  const cartRouter = express.Router()
+  cartRouter.use(payload.authenticate)
+  cartRouter.get("/",(req,res)=>{
+    const request = req as PayloadRequest
+    if(!request.user){
+      return res.redirect("/sign-in?origin=cart")
+    }
+    const parsedUrl = parse(req.url,true)
+    return nextApp.render(req,res,"/cart",parsedUrl.query)
+  })
+
+  app.use("/cart", cartRouter)
 
   //for build
   if (process.env.NEXT_BUILD) {
