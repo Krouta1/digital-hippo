@@ -59,10 +59,11 @@ const Navbar = async (props: Props) => {
                       <span className="h-6 w-px bg-gray-200" aria-hidden="true"  />
                     </div>
                   )}
-                  <div className="ml-4 flow-root lg:ml-6">
+                 
+                </div>
+                <div className="ml-4 flow-root lg:ml-6">
                     <Cart/>
                   </div>
-                </div>
               </div>
             </div>
           </div>
