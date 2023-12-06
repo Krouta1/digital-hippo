@@ -50,11 +50,24 @@ const start = async () => {
     initOptions: {
       express: app,
       onInit: async (cms) => {
-        cms.logger.info(`Admin URL ${cms.getAdminURL()}`);
+        cms.logger.info(`Admin URL: ${cms.getAdminURL()}`)
       },
     },
-  });
+  })
 
+
+  //for build
+  if (process.env.NEXT_BUILD) {
+    app.listen(PORT, async () => {
+      payload.logger.info("Next.js is building for production");
+      //@ts-expect-error
+      await nextBuild(path.join(__dirname, "../"));
+
+      process.exit();
+    });
+    return
+  }
+  
   //for cart
   const cartRouter = express.Router()
   cartRouter.use(payload.authenticate)
@@ -69,17 +82,6 @@ const start = async () => {
 
   app.use("/cart", cartRouter)
 
-  //for build
-  if (process.env.NEXT_BUILD) {
-    app.listen(PORT, async () => {
-      payload.logger.info("Next.js is building for production");
-      //@ts-expect-error
-      await nextBuild(path.join(__dirname, "../"));
-
-      process.exit();
-    });
-    return
-  }
 
   app.use(
     "/api/trpc",
