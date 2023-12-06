@@ -70,7 +70,7 @@ exports.appRouter = (0, trpc_1.router)({
     payment: payment_router_1.paymentRouter,
     getInifiniteProducts: trpc_1.publicProcedure.input(zod_1.z.object({
         limit: zod_1.z.number().min(1).max(100),
-        cursor: zod_1.z.number().nullish(), // last elemnt that was rendered
+        cursor: zod_1.z.number().nullish(),
         query: query_validator_1.QueryValidator,
     })).query(function (_a) {
         var input = _a.input;
