@@ -33,7 +33,7 @@ const ThankYouPage = async ({
       },
     },
   })
-  //get the one order
+
   const [order] = orders
 
   if (!order) return notFound()
@@ -43,14 +43,12 @@ const ThankYouPage = async ({
       ? order.user
       : order.user.id
 
-  // if user that try to acces this page is nto user that made order
   if (orderUserId !== user?.id) {
     return redirect(
       `/sign-in?origin=thank-you?orderId=${order.id}`
     )
   }
 
-  //count order total
   const products = order.products as Product[]
 
   const orderTotal = products.reduce((total, product) => {
