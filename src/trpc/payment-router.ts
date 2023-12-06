@@ -1,91 +1,87 @@
-import { z } from "zod";
-import { privateProcedure, publicProcedure, router } from "./trpc";
-import { TRPCError } from "@trpc/server";
-import { getPayloadClient } from "../get-payload";
-import { stripe } from "../lib/stripe";
-import type Stripe from "stripe";
+import { z } from 'zod'
+import {
+  privateProcedure,
+  publicProcedure,
+  router,
+} from './trpc'
+import { TRPCError } from '@trpc/server'
+import { getPayloadClient } from '../get-payload'
+import { stripe } from '../lib/stripe'
+import type Stripe from 'stripe'
 
 export const paymentRouter = router({
   createSession: privateProcedure
-    .input(
-      z.object({
-        productIds: z.array(z.string()),
-      })
-    )
+    .input(z.object({ productIds: z.array(z.string()) }))
     .mutation(async ({ ctx, input }) => {
-      const { user } = ctx;
-      let { productIds } = input;
+      const { user } = ctx
+      let { productIds } = input
 
       if (productIds.length === 0) {
-        throw new TRPCError({ code: "BAD_REQUEST" });
+        throw new TRPCError({ code: 'BAD_REQUEST' })
       }
 
-      const payload = await getPayloadClient();
+      const payload = await getPayloadClient()
 
-      //get products
       const { docs: products } = await payload.find({
-        collection: "products",
+        collection: 'products',
         where: {
           id: {
             in: productIds,
           },
         },
-      });
+      })
 
-      //if it has price i can use it in stripe
-      const filteredProducts = products.filter((prod) => Boolean(prod.priceId));
+      const filteredProducts = products.filter((prod) =>
+        Boolean(prod.priceId)
+      )
 
-      //create an order
       const order = await payload.create({
-        collection: "orders",
+        collection: 'orders',
         data: {
           _isPaid: false,
-          products: filteredProducts.map((product) => product.id),
+          products: filteredProducts.map((prod) => prod.id),
           user: user.id,
         },
-      });
+      })
 
-      //define items that are send to stripe
-      const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+      const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
+        []
 
-      //pushing items in cart
       filteredProducts.forEach((product) => {
         line_items.push({
           price: product.priceId!,
           quantity: 1,
-        });
-      });
+        })
+      })
 
-      //pushing transaction fee
       line_items.push({
-        price: "price_1OHWvtAcihk59JjwY6QXJUHS",
+        price: 'price_1OCeBwA19umTXGu8s4p2G3aX',
         quantity: 1,
         adjustable_quantity: {
           enabled: false,
         },
-      });
+      })
 
-      //try to check out with stripe
       try {
-        const stripeSession = await stripe.checkout.sessions.create({
-          success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
-          cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
-          payment_method_types: ["card", "paypal"],
-          mode: "payment",
-          metadata: {
-            userId: user.id,
-            orderId: order.id,
-          },
-          line_items,
-        });
+        const stripeSession =
+          await stripe.checkout.sessions.create({
+            success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
+            cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
+            payment_method_types: ['card', 'paypal'],
+            mode: 'payment',
+            metadata: {
+              userId: user.id,
+              orderId: order.id,
+            },
+            line_items,
+          })
 
-        return { url: stripeSession.url };
-      } catch (error) {
-        console.log(error);
-        return { url: null };
+        return { url: stripeSession.url }
+      } catch (err) {
+        return { url: null }
       }
     }),
-    pollOrderStatus: privateProcedure
+  pollOrderStatus: privateProcedure
     .input(z.object({ orderId: z.string() }))
     .query(async ({ input }) => {
       const { orderId } = input
@@ -109,5 +105,4 @@ export const paymentRouter = router({
 
       return { isPaid: order._isPaid }
     }),
-
-});
+})
