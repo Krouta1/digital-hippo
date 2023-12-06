@@ -68,8 +68,8 @@ var next_utils_1 = require("./next-utils");
 var trpcExpress = __importStar(require("@trpc/server/adapters/express"));
 var trpc_1 = require("./trpc");
 var body_parser_1 = __importDefault(require("body-parser"));
-var webhooks_1 = require("./webhooks");
 var build_1 = __importDefault(require("next/dist/build"));
+var webhooks_1 = require("./webhooks");
 var path_1 = __importDefault(require("path"));
 var url_1 = require("url");
 var app = (0, express_1.default)();
@@ -82,32 +82,41 @@ var createContext = function (_a) {
     });
 };
 var start = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var webhookMiddleware, payload, cartRouter;
+    var webHookMiddleware, payload, cartRouter;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                webhookMiddleware = body_parser_1.default.json({
+                webHookMiddleware = body_parser_1.default.json({
                     verify: function (req, _, buffer) {
                         req.rawBody = buffer;
                     },
                 });
                 //also for stripe
-                app.post('/api/webhooks/stripe', webhookMiddleware, webhooks_1.stripeWebhookHandler);
+                app.post("/api/webhooks/stripe", webHookMiddleware, webhooks_1.stripeWebhookHandler);
                 return [4 /*yield*/, (0, get_payload_1.getPayloadClient)({
                         initOptions: {
                             express: app,
                             onInit: function (cms) { return __awaiter(void 0, void 0, void 0, function () {
                                 return __generator(this, function (_a) {
-                                    cms.logger.info("Admin URL: ".concat(cms.getAdminURL()));
+                                    cms.logger.info("Admin URL ".concat(cms.getAdminURL()));
                                     return [2 /*return*/];
                                 });
                             }); },
                         },
-                    })
-                    //for build
-                ];
+                    })];
             case 1:
                 payload = _a.sent();
+                cartRouter = express_1.default.Router();
+                cartRouter.use(payload.authenticate);
+                cartRouter.get("/", function (req, res) {
+                    var request = req;
+                    if (!request.user) {
+                        return res.redirect("/sign-in?origin=cart");
+                    }
+                    var parsedUrl = (0, url_1.parse)(req.url, true);
+                    return next_utils_1.nextApp.render(req, res, "/cart", parsedUrl.query);
+                });
+                app.use("/cart", cartRouter);
                 //for build
                 if (process.env.NEXT_BUILD) {
                     app.listen(PORT, function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -127,17 +136,6 @@ var start = function () { return __awaiter(void 0, void 0, void 0, function () {
                     }); });
                     return [2 /*return*/];
                 }
-                cartRouter = express_1.default.Router();
-                cartRouter.use(payload.authenticate);
-                cartRouter.get("/", function (req, res) {
-                    var request = req;
-                    if (!request.user) {
-                        return res.redirect("/sign-in?origin=cart");
-                    }
-                    var parsedUrl = (0, url_1.parse)(req.url, true);
-                    return next_utils_1.nextApp.render(req, res, "/cart", parsedUrl.query);
-                });
-                app.use("/cart", cartRouter);
                 app.use("/api/trpc", trpcExpress.createExpressMiddleware({
                     router: trpc_1.appRouter,
                     createContext: createContext,

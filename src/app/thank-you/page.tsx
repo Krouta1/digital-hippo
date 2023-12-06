@@ -33,7 +33,7 @@ const ThankYouPage = async ({
       },
     },
   })
-
+  //get the one order
   const [order] = orders
 
   if (!order) return notFound()
@@ -43,12 +43,14 @@ const ThankYouPage = async ({
       ? order.user
       : order.user.id
 
+  // if user that try to acces this page is nto user that made order
   if (orderUserId !== user?.id) {
     return redirect(
       `/sign-in?origin=thank-you?orderId=${order.id}`
     )
   }
 
+  //count order total
   const products = order.products as Product[]
 
   const orderTotal = products.reduce((total, product) => {
@@ -148,7 +150,7 @@ const ThankYouPage = async ({
                             <a
                               href={downloadUrl}
                               download={product.name}
-                              className='text-blue-600 hover:underline underline-offset-2'>
+                              className='text-primary hover:underline underline-offset-2'>
                               Download asset
                             </a>
                           ) : null}
@@ -195,7 +197,7 @@ const ThankYouPage = async ({
               <div className='mt-16 border-t border-gray-200 py-6 text-right'>
                 <Link
                   href='/products'
-                  className='text-sm font-medium text-blue-600 hover:text-blue-500'>
+                  className='text-sm font-medium text-primary hover:text-orange-700'>
                   Continue shopping &rarr;
                 </Link>
               </div>

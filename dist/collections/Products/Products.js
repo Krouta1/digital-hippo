@@ -72,28 +72,26 @@ var addUser = function (_a) {
 var syncUser = function (_a) {
     var req = _a.req, doc = _a.doc;
     return __awaiter(void 0, void 0, void 0, function () {
-        var fullUser, products, allIDs_1, createdProductIDs, dataToUpdate;
+        var fullUser, products, allIDS_1, createdProductIDs, dataToUpdate;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, req.payload.findByID({
-                        collection: 'users',
+                        collection: "users",
                         id: req.user.id,
                     })];
                 case 1:
                     fullUser = _b.sent();
-                    if (!(fullUser && typeof fullUser === 'object')) return [3 /*break*/, 3];
+                    if (!(fullUser && typeof fullUser === "object")) return [3 /*break*/, 3];
                     products = fullUser.products;
-                    allIDs_1 = __spreadArray([], ((products === null || products === void 0 ? void 0 : products.map(function (product) {
-                        return typeof product === 'object' ? product.id : product;
-                    })) || []), true);
-                    createdProductIDs = allIDs_1.filter(function (id, index) { return allIDs_1.indexOf(id) === index; });
+                    allIDS_1 = __spreadArray([], ((products === null || products === void 0 ? void 0 : products.map(function (product) { return typeof product === "object" ? product.id : product; })) || []), true);
+                    createdProductIDs = allIDS_1.filter(function (id, index) { return allIDS_1.indexOf(id) === index; });
                     dataToUpdate = __spreadArray(__spreadArray([], createdProductIDs, true), [doc.id], false);
                     return [4 /*yield*/, req.payload.update({
-                            collection: 'users',
+                            collection: "users",
                             id: fullUser.id,
                             data: {
                                 products: dataToUpdate,
-                            },
+                            }
                         })];
                 case 2:
                     _b.sent();
@@ -103,36 +101,34 @@ var syncUser = function (_a) {
         });
     });
 };
-var isAdminOrHasAccess = function () {
-    return function (_a) {
-        var _user = _a.req.user;
-        var user = _user;
-        if (!user)
-            return false;
-        if (user.role === 'admin')
-            return true;
-        var userProductIDs = (user.products || []).reduce(function (acc, product) {
-            if (!product)
-                return acc;
-            if (typeof product === 'string') {
-                acc.push(product);
-            }
-            else {
-                acc.push(product.id);
-            }
+var isAdminOrHasAccess = function () { return function (_a) {
+    var _user = _a.req.user;
+    var user = _user;
+    if (!user)
+        return false;
+    if (user.role === "admin")
+        return true;
+    var userProductIDs = (user.products || []).reduce(function (acc, product) {
+        if (!product)
             return acc;
-        }, []);
-        return {
-            id: {
-                in: userProductIDs,
-            },
-        };
+        if (typeof product === "string") {
+            acc.push(product);
+        }
+        else {
+            acc.push(product.id);
+        }
+        return acc;
+    }, []);
+    return {
+        id: {
+            in: userProductIDs
+        }
     };
-};
+}; };
 exports.Products = {
-    slug: 'products',
+    slug: "products",
     admin: {
-        useAsTitle: 'name',
+        useAsTitle: "name",
     },
     access: {
         read: isAdminOrHasAccess(),
@@ -143,18 +139,19 @@ exports.Products = {
         afterChange: [syncUser],
         beforeChange: [
             addUser,
+            //this one creating all the fields fro stripe (stripeId and priceId)
             function (args) { return __awaiter(void 0, void 0, void 0, function () {
                 var data, createdProduct, updated, data, updatedProduct, updated;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            if (!(args.operation === 'create')) return [3 /*break*/, 2];
+                            if (!(args.operation === "create")) return [3 /*break*/, 2];
                             data = args.data;
                             return [4 /*yield*/, stripe_1.stripe.products.create({
                                     name: data.name,
                                     default_price_data: {
-                                        currency: 'USD',
-                                        unit_amount: Math.round(data.price * 100),
+                                        currency: "USD",
+                                        unit_amount: Math.round(data.price * 100), // price was in cents !!!
                                     },
                                 })];
                         case 1:
@@ -162,7 +159,7 @@ exports.Products = {
                             updated = __assign(__assign({}, data), { stripeId: createdProduct.id, priceId: createdProduct.default_price });
                             return [2 /*return*/, updated];
                         case 2:
-                            if (!(args.operation === 'update')) return [3 /*break*/, 4];
+                            if (!(args.operation === "update")) return [3 /*break*/, 4];
                             data = args.data;
                             return [4 /*yield*/, stripe_1.stripe.products.update(data.stripeId, {
                                     name: data.name,
@@ -176,7 +173,7 @@ exports.Products = {
                     }
                 });
             }); },
-        ],
+        ]
     },
     fields: [
         {
