@@ -96,13 +96,13 @@ var stripeWebhookHandler = function (req, res) { return __awaiter(void 0, void 0
                     return [2 /*return*/, res.status(404).json({ error: "No such order exists." })];
                 return [4 /*yield*/, payload.update({
                         collection: "orders",
+                        data: {
+                            _isPaid: true,
+                        },
                         where: {
                             id: {
                                 equals: session.metadata.orderId,
                             },
-                        },
-                        data: {
-                            _isPaid: true,
                         },
                     })];
             case 4:

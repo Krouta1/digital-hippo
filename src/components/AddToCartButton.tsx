@@ -21,8 +21,6 @@ const AddToCartButton = ({product}: AddToCartButtonProps) => {
     };
   }, [isSuccess]);
 
-  
-
   return (
     <Button
       onClick={() => {

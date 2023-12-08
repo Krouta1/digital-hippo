@@ -150,7 +150,7 @@ const ThankYouPage = async ({
                             <a
                               href={downloadUrl}
                               download={product.name}
-                              className='text-primary hover:underline underline-offset-2'>
+                              className='text-blue-600 hover:underline underline-offset-2'>
                               Download asset
                             </a>
                           ) : null}
@@ -197,7 +197,7 @@ const ThankYouPage = async ({
               <div className='mt-16 border-t border-gray-200 py-6 text-right'>
                 <Link
                   href='/products'
-                  className='text-sm font-medium text-primary hover:text-orange-700'>
+                  className='text-sm font-medium text-blue-600 hover:text-blue-500'>
                   Continue shopping &rarr;
                 </Link>
               </div>
